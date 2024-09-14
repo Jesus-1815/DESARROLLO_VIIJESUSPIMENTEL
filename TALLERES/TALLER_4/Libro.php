@@ -1,10 +1,17 @@
-<?php
+<?php 
 require_once 'Prestable.php';
 
 class Libro implements Prestable {
-    // ... (propiedades y métodos anteriores) ...
-
+    private $titulo;
+    private $autor;
+    private $anioPublicacion;
     private $disponible = true;
+
+    public function __construct($titulo, $autor, $anioPublicacion) {
+        $this->titulo = $titulo;
+        $this->autor = $autor;
+        $this->anioPublicacion = $anioPublicacion;
+    }
 
     public function prestar() {
         if ($this->disponible) {
@@ -20,6 +27,11 @@ class Libro implements Prestable {
 
     public function estaDisponible() {
         return $this->disponible;
+    }
+
+    // Agregar el método obtenerInformacion
+    public function obtenerInformacion() {
+        return "Título: " . $this->titulo . ", Autor: " . $this->autor . ", Año de Publicación: " . $this->anioPublicacion;
     }
 }
 
