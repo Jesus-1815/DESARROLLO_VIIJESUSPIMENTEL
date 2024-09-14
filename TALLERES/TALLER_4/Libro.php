@@ -29,17 +29,11 @@ class Libro implements Prestable {
         return $this->disponible;
     }
 
-    // Agregar el método obtenerInformacion
     public function obtenerInformacion() {
         return "Título: " . $this->titulo . ", Autor: " . $this->autor . ", Año de Publicación: " . $this->anioPublicacion;
     }
-}
 
-// Ejemplo de uso
-$libro = new Libro("Rayuela", "Julio Cortázar", 1963);
-echo $libro->obtenerInformacion() . "\n";
-echo "Disponible: " . ($libro->estaDisponible() ? "Sí" : "No") . "\n";
-$libro->prestar();
-echo "Disponible después de prestar: " . ($libro->estaDisponible() ? "Sí" : "No") . "\n";
-$libro->devolver();
-echo "Disponible después de devolver: " . ($libro->estaDisponible() ? "Sí" : "No") . "\n";
+    public function getTitulo() {
+        return $this->titulo;
+    }
+}
