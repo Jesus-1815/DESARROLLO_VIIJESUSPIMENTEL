@@ -57,4 +57,5 @@ echo "\nBuscar Estudiantes por nombre (Ana):\n";
 print_r($sistema->buscarEstudiantes('Ana'));
 
 echo "\nEstadísticas por Carrera:\n";
-print_r($sistema->generarEstadisticas
+print_r($sistema->generarEstadisticasPorCarrera());
+
