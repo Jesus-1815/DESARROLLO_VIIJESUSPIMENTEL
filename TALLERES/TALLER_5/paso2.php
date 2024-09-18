@@ -10,7 +10,8 @@ $inventario = [
 // 2. Función para mostrar el inventario
 function mostrarInventario($inv) {
     foreach ($inv as $producto => $info) {
-        echo "$producto: {$info['cantidad']} unidades, Precio: ${$info['precio']}\n";
+        // Escapamos el símbolo $ usando la barra invertida (\) (ERROR EN EL CODIGO- SOLUCION)
+        echo "$producto: {$info['cantidad']} unidades, Precio: \$${info['precio']}\n";
     }
 }
 
@@ -49,7 +50,7 @@ function valorTotalInventario($inv) {
 }
 
 // 8. Mostrar valor total del inventario
-echo "\nValor total del inventario: $" . valorTotalInventario($inventario) . "\n";
+echo "\nValor total del inventario: \$" . valorTotalInventario($inventario) . "\n";
 
 // TAREA: Crea una función que encuentre y retorne el producto con el mayor valor total en inventario
 function productoMayorValor($inv) {
@@ -71,3 +72,4 @@ function productoMayorValor($inv) {
 $productoConMayorValor = productoMayorValor($inventario);
 echo "\nProducto con mayor valor total en inventario: $productoConMayorValor\n";
 ?>
+
