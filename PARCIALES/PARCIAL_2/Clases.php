@@ -1,5 +1,4 @@
 <?php
-// Definimos la interfaz Detalle
 interface Detalle {
     public function obtenerDetallesEspecificos(): string;
 }
@@ -20,9 +19,9 @@ class Tarea {
         $this->fechaCreacion = $fechaCreacion;
     }
     
-    // Métodos getter y setter generales para Tarea
+   
 }
-class TareaDesarrollo extends Tarea implements Detalle {
+class TareaDesarrollo extends Tarea {
     private $lenguajeProgramacion;
 
     public function __construct($id, $titulo, $descripcion, $estado, $prioridad, $fechaCreacion, $lenguajeProgramacion) {
@@ -30,10 +29,15 @@ class TareaDesarrollo extends Tarea implements Detalle {
         $this->lenguajeProgramacion = $lenguajeProgramacion;
     }
 
-    public function obtenerDetallesEspecificos(): string {
-        return "Lenguaje de Programación: " . $this->lenguajeProgramacion;
+    public function obtenerDetallesEspecificos() {
+        return "Lenguaje de Programación: $this->lenguajeProgramacion";
+    }
+
+    public function setLenguajeProgramacion($lenguaje) {
+        $this->lenguajeProgramacion = $lenguaje;
     }
 }
+
 class TareaDiseno extends Tarea implements Detalle {
     private $herramientaDiseno;
 
@@ -61,6 +65,9 @@ class TareaTesting extends Tarea implements Detalle {
 class GestorTareas {
     private $tareas = [];
 
+    public function agregarTarea($tarea) {
+        $this->tareas[] = $tarea;
+    }
     public function cargarTareasDesdeJson($archivo) {
         if (file_exists($archivo)) {
             $contenido = file_get_contents($archivo);
@@ -81,7 +88,7 @@ class GestorTareas {
                         $tarea->tipoTest = $tareaData['tipoTest'];
                         break;
                 }
-                // Establecer otros atributos de la tarea
+                
                 $tarea->id = $tareaData['id'];
                 $tarea->titulo = $tareaData['titulo'];
                 $tarea->descripcion = $tareaData['descripcion'];
@@ -105,7 +112,7 @@ class GestorTareas {
         return $this->tareas;
     }
 
-    // Otros métodos como agregarTarea, eliminarTarea, etc.
+    
 }
     
 ?>

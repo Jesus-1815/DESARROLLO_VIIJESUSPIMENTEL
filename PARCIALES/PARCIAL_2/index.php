@@ -14,24 +14,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'agregar':
             // Crear una tarea según el tipo
             $tipo = $_POST['tipo'];
+            $id = uniqid(); // Generar un ID único
+            $titulo = $_POST['titulo'];
+            $descripcion = $_POST['descripcion'];
+            $estado = $_POST['estado'];
+            $prioridad = $_POST['prioridad'];
+            $fechaCreacion = date('Y-m-d'); // Fecha actual
+
             switch ($tipo) {
                 case 'desarrollo':
-                    $tarea = new TareaDesarrollo();
-                    $tarea->setLenguajeProgramacion($_POST['lenguaje']);
+                    $lenguaje = $_POST['lenguaje'] ?? ''; // Valor por defecto si no se envía
+                    $tarea = new TareaDesarrollo($id, $titulo, $descripcion, $estado, $prioridad, $fechaCreacion, $lenguaje);
                     break;
                 case 'diseno':
-                    $tarea = new TareaDiseno();
-                    $tarea->setHerramientaDiseno($_POST['herramienta']);
+                    $herramienta = $_POST['herramienta'] ?? ''; // Valor por defecto
+                    $tarea = new TareaDiseno($id, $titulo, $descripcion, $estado, $prioridad, $fechaCreacion, $herramienta);
                     break;
                 case 'testing':
-                    $tarea = new TareaTesting();
-                    $tarea->setTipoTest($_POST['tipoTest']);
+                    $tipoTest = $_POST['tipoTest'] ?? ''; // Valor por defecto
+                    $tarea = new TareaTesting($id, $titulo, $descripcion, $estado, $prioridad, $fechaCreacion, $tipoTest);
                     break;
             }
-            $tarea->setTitulo($_POST['titulo']);
-            $tarea->setDescripcion($_POST['descripcion']);
-            $tarea->setEstado($_POST['estado']);
-            $tarea->setPrioridad($_POST['prioridad']);
             $gestor->agregarTarea($tarea);
             break;
 
@@ -142,8 +145,8 @@ $tareas = $gestor->listarTareas();
                 <tr>
                     <td><?= $tarea->getTitulo() ?></td>
                     <td><?= $tarea->getDescripcion() ?></td>
-                    <td><?= $estadosLegibles[$tarea->getEstado()] ?></td>
-                    <td><?= $prioridadesLegibles[$tarea->getPrioridad()] ?></td>
+                    <td><?= $tarea->getEstado() ?></td>
+                    <td><?= $tarea->getPrioridad() ?></td>
                     <td><?= $tarea->obtenerDetallesEspecificos() ?></td>
                     <td>
                         <form action="" method="POST" style="display:inline;">
@@ -176,3 +179,4 @@ $tareas = $gestor->listarTareas();
     </script>
 </body>
 </html>
+
