@@ -21,7 +21,17 @@ class Tarea {
     public function getDescripcion() {
         return $this->descripcion; 
     }
-   
+    public function getEstado() {
+        return $this->estado;
+        public function getEstado() {
+            return $this->estado; // Asegúrate de tener este método
+        }
+    
+        public function getPrioridad() {
+            return $this->prioridad;
+        }
+        public function obtenerDetallesEspecificos() {
+            return ''; }
 }
 class TareaDesarrollo extends Tarea {
     private $lenguajeProgramacion;
