@@ -15,24 +15,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Crear una tarea según el tipo
             $tipo = $_POST['tipo'];
             $id = uniqid(); // Generar un ID único
-            $titulo = $_POST['titulo'];
-            $descripcion = $_POST['descripcion'];
-            $estado = $_POST['estado'];
-            $prioridad = $_POST['prioridad'];
-            $fechaCreacion = date('Y-m-d'); // Fecha actual
+            $fechaCreacion = date('Y-m-d H:i:s'); // Establecer la fecha de creación
 
             switch ($tipo) {
                 case 'desarrollo':
-                    $lenguaje = $_POST['lenguaje'] ?? ''; // Valor por defecto si no se envía
-                    $tarea = new TareaDesarrollo($id, $titulo, $descripcion, $estado, $prioridad, $fechaCreacion, $lenguaje);
+                    $tarea = new TareaDesarrollo(
+                        $id,
+                        $_POST['titulo'],
+                        $_POST['descripcion'],
+                        $_POST['estado'],
+                        $_POST['prioridad'],
+                        $fechaCreacion,
+                        $_POST['lenguaje']
+                    );
                     break;
                 case 'diseno':
-                    $herramienta = $_POST['herramienta'] ?? ''; // Valor por defecto
-                    $tarea = new TareaDiseno($id, $titulo, $descripcion, $estado, $prioridad, $fechaCreacion, $herramienta);
+                    $tarea = new TareaDiseno(
+                        $id,
+                        $_POST['titulo'],
+                        $_POST['descripcion'],
+                        $_POST['estado'],
+                        $_POST['prioridad'],
+                        $fechaCreacion,
+                        $_POST['herramienta']
+                    );
                     break;
                 case 'testing':
-                    $tipoTest = $_POST['tipoTest'] ?? ''; // Valor por defecto
-                    $tarea = new TareaTesting($id, $titulo, $descripcion, $estado, $prioridad, $fechaCreacion, $tipoTest);
+                    $tarea = new TareaTesting(
+                        $id,
+                        $_POST['titulo'],
+                        $_POST['descripcion'],
+                        $_POST['estado'],
+                        $_POST['prioridad'],
+                        $fechaCreacion,
+                        $_POST['tipoTest']
+                    );
                     break;
             }
             $gestor->agregarTarea($tarea);
@@ -172,11 +189,8 @@ $tareas = $gestor->listarTareas();
         document.querySelector('select[name="tipo"]').addEventListener('change', function() {
             const tipo = this.value;
             const especifico = document.getElementById('especifico');
-            especifico.style.display = tipo === 'desarrollo' ? 'block' : 'none';
-            especifico.style.display = tipo === 'diseno' ? 'block' : 'none';
-            especifico.style.display = tipo === 'testing' ? 'block' : 'none';
+            especifico.style.display = (tipo === 'desarrollo' || tipo === 'diseno' || tipo === 'testing') ? 'block' : 'none';
         });
     </script>
 </body>
 </html>
-

@@ -1,7 +1,9 @@
 <?php
+
 interface Detalle {
     public function obtenerDetallesEspecificos(): string;
 }
+
 class Tarea {
     protected $id;
     protected $titulo;
@@ -18,22 +20,33 @@ class Tarea {
         $this->prioridad = $prioridad;
         $this->fechaCreacion = $fechaCreacion;
     }
+
+    public function getId() {
+        return $this->id; 
+    }
+
+    public function getTitulo() {
+        return $this->titulo; 
+    }
+
     public function getDescripcion() {
         return $this->descripcion; 
     }
+
     public function getEstado() {
-        return $this->estado;
-        public function getEstado() {
-            return $this->estado; // Asegúrate de tener este método
-        }
-    
-        public function getPrioridad() {
-            return $this->prioridad;
-        }
-        public function obtenerDetallesEspecificos() {
-            return ''; }
+        return $this->estado; 
+    }
+
+    public function getPrioridad() {
+        return $this->prioridad; 
+    }
+
+    public function obtenerDetallesEspecificos() {
+        return ''; // Método a ser sobreescrito por las subclases
+    }
 }
-class TareaDesarrollo extends Tarea {
+
+class TareaDesarrollo extends Tarea implements Detalle {
     private $lenguajeProgramacion;
 
     public function __construct($id, $titulo, $descripcion, $estado, $prioridad, $fechaCreacion, $lenguajeProgramacion) {
@@ -41,15 +54,12 @@ class TareaDesarrollo extends Tarea {
         $this->lenguajeProgramacion = $lenguajeProgramacion;
     }
 
-    public function obtenerDetallesEspecificos() {
+    public function obtenerDetallesEspecificos(): string {
         return "Lenguaje de Programación: $this->lenguajeProgramacion";
     }
 
     public function setLenguajeProgramacion($lenguaje) {
         $this->lenguajeProgramacion = $lenguaje;
-    }
-    public function getTitulo() {
-        return $this->titulo; 
     }
 }
 
@@ -65,6 +75,7 @@ class TareaDiseno extends Tarea implements Detalle {
         return "Herramienta de Diseño: " . $this->herramientaDiseno;
     }
 }
+
 class TareaTesting extends Tarea implements Detalle {
     private $tipoTest;
 
@@ -77,12 +88,14 @@ class TareaTesting extends Tarea implements Detalle {
         return "Tipo de Test: " . $this->tipoTest;
     }
 }
+
 class GestorTareas {
     private $tareas = [];
 
-    public function agregarTarea($tarea) {
-        $this->tareas[] = $tarea;
+    public function agregarTarea(Tarea $tarea) {
+        $this->tareas[$tarea->getId()] = $tarea; // Usar el ID como clave para evitar duplicados
     }
+
     public function cargarTareasDesdeJson($archivo) {
         if (file_exists($archivo)) {
             $contenido = file_get_contents($archivo);
@@ -91,27 +104,43 @@ class GestorTareas {
             foreach ($datos as $tareaData) {
                 switch ($tareaData['tipo']) {
                     case 'desarrollo':
-                        $tarea = new TareaDesarrollo();
-                        $tarea->lenguajeProgramacion = $tareaData['lenguajeProgramacion'];
+                        $tarea = new TareaDesarrollo(
+                            $tareaData['id'],
+                            $tareaData['titulo'],
+                            $tareaData['descripcion'],
+                            $tareaData['estado'],
+                            $tareaData['prioridad'],
+                            $tareaData['fechaCreacion'],
+                            $tareaData['lenguajeProgramacion']
+                        );
                         break;
                     case 'diseno':
-                        $tarea = new TareaDiseno();
-                        $tarea->herramientaDiseno = $tareaData['herramientaDiseno'];
+                        $tarea = new TareaDiseno(
+                            $tareaData['id'],
+                            $tareaData['titulo'],
+                            $tareaData['descripcion'],
+                            $tareaData['estado'],
+                            $tareaData['prioridad'],
+                            $tareaData['fechaCreacion'],
+                            $tareaData['herramientaDiseno']
+                        );
                         break;
                     case 'testing':
-                        $tarea = new TareaTesting();
-                        $tarea->tipoTest = $tareaData['tipoTest'];
+                        $tarea = new TareaTesting(
+                            $tareaData['id'],
+                            $tareaData['titulo'],
+                            $tareaData['descripcion'],
+                            $tareaData['estado'],
+                            $tareaData['prioridad'],
+                            $tareaData['fechaCreacion'],
+                            $tareaData['tipoTest']
+                        );
                         break;
+                    default:
+                        throw new Exception("Tipo de tarea desconocido: " . $tareaData['tipo']);
                 }
-                
-                $tarea->id = $tareaData['id'];
-                $tarea->titulo = $tareaData['titulo'];
-                $tarea->descripcion = $tareaData['descripcion'];
-                $tarea->estado = $tareaData['estado'];
-                $tarea->prioridad = $tareaData['prioridad'];
-                $tarea->fechaCreacion = $tareaData['fechaCreacion'];
 
-                $this->tareas[] = $tarea;
+                $this->agregarTarea($tarea);
             }
         } else {
             throw new Exception("El archivo no existe.");
@@ -121,13 +150,12 @@ class GestorTareas {
     public function listarTareas($filtroEstado = '') {
         if ($filtroEstado) {
             return array_filter($this->tareas, function($tarea) use ($filtroEstado) {
-                return $tarea->estado === $filtroEstado;
+                return $tarea->getEstado() === $filtroEstado;
             });
         }
         return $this->tareas;
     }
-
-    
 }
-    
+
 ?>
+
