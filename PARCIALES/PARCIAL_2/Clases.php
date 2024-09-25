@@ -58,5 +58,54 @@ class TareaTesting extends Tarea implements Detalle {
         return "Tipo de Test: " . $this->tipoTest;
     }
 }
+class GestorTareas {
+    private $tareas = [];
 
+    public function cargarTareasDesdeJson($archivo) {
+        if (file_exists($archivo)) {
+            $contenido = file_get_contents($archivo);
+            $datos = json_decode($contenido, true);
+
+            foreach ($datos as $tareaData) {
+                switch ($tareaData['tipo']) {
+                    case 'desarrollo':
+                        $tarea = new TareaDesarrollo();
+                        $tarea->lenguajeProgramacion = $tareaData['lenguajeProgramacion'];
+                        break;
+                    case 'diseno':
+                        $tarea = new TareaDiseno();
+                        $tarea->herramientaDiseno = $tareaData['herramientaDiseno'];
+                        break;
+                    case 'testing':
+                        $tarea = new TareaTesting();
+                        $tarea->tipoTest = $tareaData['tipoTest'];
+                        break;
+                }
+                // Establecer otros atributos de la tarea
+                $tarea->id = $tareaData['id'];
+                $tarea->titulo = $tareaData['titulo'];
+                $tarea->descripcion = $tareaData['descripcion'];
+                $tarea->estado = $tareaData['estado'];
+                $tarea->prioridad = $tareaData['prioridad'];
+                $tarea->fechaCreacion = $tareaData['fechaCreacion'];
+
+                $this->tareas[] = $tarea;
+            }
+        } else {
+            throw new Exception("El archivo no existe.");
+        }
+    }
+
+    public function listarTareas($filtroEstado = '') {
+        if ($filtroEstado) {
+            return array_filter($this->tareas, function($tarea) use ($filtroEstado) {
+                return $tarea->estado === $filtroEstado;
+            });
+        }
+        return $this->tareas;
+    }
+
+    // Otros métodos como agregarTarea, eliminarTarea, etc.
+}
+    
 ?>

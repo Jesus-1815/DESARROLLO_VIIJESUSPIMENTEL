@@ -1,6 +1,6 @@
 <?php
 // Incluir el archivo que contiene las clases y la interfaz
-require_once 'clases.php';
+require_once 'Clases.php';
 
 // Crear una instancia del GestorTareas
 $gestor = new GestorTareas();
