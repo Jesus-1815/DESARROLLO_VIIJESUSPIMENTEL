@@ -18,7 +18,9 @@ class Tarea {
         $this->prioridad = $prioridad;
         $this->fechaCreacion = $fechaCreacion;
     }
-    
+    public function getDescripcion() {
+        return $this->descripcion; 
+    }
    
 }
 class TareaDesarrollo extends Tarea {
@@ -35,6 +37,9 @@ class TareaDesarrollo extends Tarea {
 
     public function setLenguajeProgramacion($lenguaje) {
         $this->lenguajeProgramacion = $lenguaje;
+    }
+    public function getTitulo() {
+        return $this->titulo; 
     }
 }
 
