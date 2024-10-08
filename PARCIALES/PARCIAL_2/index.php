@@ -1,196 +1,237 @@
 <?php
-// Incluir el archivo que contiene las clases y la interfaz
-require_once 'Clases.php';
 
-// Crear una instancia del GestorTareas
-$gestor = new GestorTareas();
+require_once 'clases.php';
 
-// Manejar la acción solicitada (agregar, editar, eliminar, cambiar estado)
+$gestorBlog = new GestorBlog();
+$gestorBlog->cargarEntradas();
+
+$action = $_GET['action'] ?? 'list';
+$mensaje = '';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Obtener la acción
-    $accion = $_POST['accion'] ?? '';
-
-    switch ($accion) {
-        case 'agregar':
-            // Crear una tarea según el tipo
-            $tipo = $_POST['tipo'];
-            $id = uniqid(); // Generar un ID único
-            $fechaCreacion = date('Y-m-d H:i:s'); // Establecer la fecha de creación
-
-            switch ($tipo) {
-                case 'desarrollo':
-                    $tarea = new TareaDesarrollo(
-                        $id,
-                        $_POST['titulo'],
-                        $_POST['descripcion'],
-                        $_POST['estado'],
-                        $_POST['prioridad'],
-                        $fechaCreacion,
-                        $_POST['lenguaje']
-                    );
+    if (isset($_POST['action'])) {
+        switch ($_POST['action']) {
+            case 'add':
+            case 'edit':
+                // Asegurarse de que el tipo esté definido
+                if (!isset($_POST['tipo'])) {
+                    $mensaje = "Error: Tipo de entrada no especificado.";
                     break;
-                case 'diseno':
-                    $tarea = new TareaDiseno(
-                        $id,
-                        $_POST['titulo'],
-                        $_POST['descripcion'],
-                        $_POST['estado'],
-                        $_POST['prioridad'],
-                        $fechaCreacion,
-                        $_POST['herramienta']
-                    );
-                    break;
-                case 'testing':
-                    $tarea = new TareaTesting(
-                        $id,
-                        $_POST['titulo'],
-                        $_POST['descripcion'],
-                        $_POST['estado'],
-                        $_POST['prioridad'],
-                        $fechaCreacion,
-                        $_POST['tipoTest']
-                    );
-                    break;
-            }
-            $gestor->agregarTarea($tarea);
-            break;
+                }
 
-        case 'eliminar':
-            $gestor->eliminarTarea($_POST['id']);
-            break;
+                // Implementar la lógica
 
-        case 'actualizar':
-            $tarea = $gestor->buscarTareaPorId($_POST['id']);
-            if ($tarea) {
-                $tarea->setTitulo($_POST['titulo']);
-                $tarea->setDescripcion($_POST['descripcion']);
-                $tarea->setEstado($_POST['estado']);
-                $tarea->setPrioridad($_POST['prioridad']);
-                $gestor->actualizarTarea($tarea);
-            }
-            break;
-
-        case 'cambiar_estado':
-            $gestor->actualizarEstadoTarea($_POST['id'], $_POST['nuevoEstado']);
-            break;
+                break;
+        }
     }
 }
 
-// Listar las tareas
-$tareas = $gestor->listarTareas();
-?>
+if ($action === 'delete' && isset($_GET['id'])) {
+    // Implementar la lógica
+    $mensaje = "Entrada eliminada con éxito.";
+    $action = "list";
+}
 
+if (($action === 'move_up' || $action === 'move_down') && isset($_GET['id'])) {
+    // Implementar la lógica
+    $mensaje = "Entrada reordenada con éxito.";
+    $action = "list";
+}
+
+$entradas = $gestorBlog->obtenerEntradas();
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Gestor de Tareas</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Blog</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container mt-5">
-        <h1>Gestor de Tareas</h1>
+        <h1 class="mb-4">Gestor de Blog</h1>
+        
+        <?php if ($mensaje): ?>
+            <div class="alert alert-success" role="alert">
+                <?php echo $mensaje; ?>
+            </div>
+        <?php endif; ?>
 
-        <!-- Formulario para agregar tarea -->
-        <form action="" method="POST">
-            <input type="hidden" name="accion" value="agregar">
-            <div class="form-group">
-                <label for="titulo">Título</label>
-                <input type="text" class="form-control" name="titulo" required>
-            </div>
-            <div class="form-group">
-                <label for="descripcion">Descripción</label>
-                <textarea class="form-control" name="descripcion" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="estado">Estado</label>
-                <select class="form-control" name="estado" required>
-                    <option value="pendiente">Pendiente</option>
-                    <option value="en_progreso">En Progreso</option>
-                    <option value="completada">Completada</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="prioridad">Prioridad</label>
-                <select class="form-control" name="prioridad" required>
-                    <option value="1">Alta</option>
-                    <option value="2">Media alta</option>
-                    <option value="3">Media</option>
-                    <option value="4">Media baja</option>
-                    <option value="5">Baja</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="tipo">Tipo de Tarea</label>
-                <select class="form-control" name="tipo" required>
-                    <option value="desarrollo">Desarrollo</option>
-                    <option value="diseno">Diseño</option>
-                    <option value="testing">Testing</option>
-                </select>
-            </div>
-            <div class="form-group" id="especifico">
-                <!-- Campos específicos por tipo de tarea -->
-                <label for="lenguaje">Lenguaje de Programación (solo para desarrollo)</label>
-                <input type="text" class="form-control" name="lenguaje">
-                <label for="herramienta">Herramienta de Diseño (solo para diseño)</label>
-                <input type="text" class="form-control" name="herramienta">
-                <label for="tipoTest">Tipo de Test (solo para testing)</label>
-                <select class="form-control" name="tipoTest">
-                    <option value="unitario">Unitario</option>
-                    <option value="integracion">Integración</option>
-                    <option value="e2e">E2E</option>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary">Agregar Tarea</button>
-        </form>
+        <nav class="mb-4">
+            <a href="index.php?action=list" class="btn btn-primary">Listar Entradas</a>
+            <a href="index.php?action=add" class="btn btn-success">Agregar Entrada</a>
+            <a href="index.php?action=view" class="btn btn-info">Ver Blog</a>
+        </nav>
 
-        <!-- Tabla para listar tareas -->
-        <table class="table mt-4">
-            <thead>
-                <tr>
-                    <th>Título</th>
-                    <th>Descripción</th>
-                    <th>Estado</th>
-                    <th>Prioridad</th>
-                    <th>Detalles Específicos</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($tareas as $tarea): ?>
-                <tr>
-                    <td><?= $tarea->getTitulo() ?></td>
-                    <td><?= $tarea->getDescripcion() ?></td>
-                    <td><?= $tarea->getEstado() ?></td>
-                    <td><?= $tarea->getPrioridad() ?></td>
-                    <td><?= $tarea->obtenerDetallesEspecificos() ?></td>
-                    <td>
-                        <form action="" method="POST" style="display:inline;">
-                            <input type="hidden" name="accion" value="eliminar">
-                            <input type="hidden" name="id" value="<?= $tarea->getId() ?>">
-                            <button type="submit" class="btn btn-danger">Eliminar</button>
-                        </form>
-                        <form action="" method="POST" style="display:inline;">
-                            <input type="hidden" name="accion" value="cambiar_estado">
-                            <input type="hidden" name="id" value="<?= $tarea->getId() ?>">
-                            <input type="hidden" name="nuevoEstado" value="<?= $tarea->getEstado() === 'completada' ? 'en_progreso' : 'completada' ?>">
-                            <button type="submit" class="btn btn-warning">Cambiar Estado</button>
-                        </form>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
+        <?php if ($action === 'list'): ?>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Título</th>
+                        <th>Tipo</th>
+                        <th>Fecha de Creación</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($entradas as $entrada): ?>
+                        <tr>
+                            <td><?php echo $entrada->id; ?></td>
+                            <td><?php echo $entrada->titulo ?? $entrada->titulo1; ?></td>
+                            <td><?php echo $entrada->tipo; ?> columna(s)</td>
+                            <td><?php echo $entrada->fecha_creacion; ?></td>
+                            <td>
+                                <a href="index.php?action=edit&id=<?php echo $entrada->id; ?>" class="btn btn-warning btn-sm">Editar</a>
+                                <a href="index.php?action=delete&id=<?php echo $entrada->id; ?>" class="btn btn-danger btn-sm" onclick="return confirm('¿Está seguro de eliminar esta entrada?')">Eliminar</a>
+                                <a href="index.php?action=move_up&id=<?php echo $entrada->id; ?>" class="btn btn-secondary btn-sm">▲</a>
+                                <a href="index.php?action=move_down&id=<?php echo $entrada->id; ?>" class="btn btn-secondary btn-sm">▼</a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+            <a href="index.php?action=view" class="btn btn-primary">Ver Blog</a>
+            <?php elseif ($action === 'add' || $action === 'edit'): ?>
+    <?php
+    $entradaEditar = null;
+    if ($action === 'edit' && isset($_GET['id'])) {
+        $entradaEditar = $gestorBlog->obtenerEntrada($_GET['id']);
+    }
+    ?>
+    <form action="index.php" method="post">
+        <input type="hidden" name="action" value="<?php echo $action; ?>">
+        <?php if ($entradaEditar): ?>
+            <input type="hidden" name="id" value="<?php echo $entradaEditar->id; ?>">
+        <?php endif; ?>
+        
+        <div class="mb-3">
+            <label for="tipo" class="form-label">Tipo de Entrada</label>
+            <select class="form-select" id="tipo" name="tipo" required>
+                <option value="1" <?php echo $entradaEditar && $entradaEditar->tipo == 1 ? 'selected' : ''; ?>>1 Columna</option>
+                <option value="2" <?php echo $entradaEditar && $entradaEditar->tipo == 2 ? 'selected' : ''; ?>>2 Columnas</option>
+                <option value="3" <?php echo $entradaEditar && $entradaEditar->tipo == 3 ? 'selected' : ''; ?>>3 Columnas</option>
+            </select>
+        </div>
+
+        <div id="campos-dinamicos">
+            <!-- Los campos se generarán dinámicamente con JavaScript -->
+        </div>
+
+        <button type="submit" class="btn btn-primary"><?php echo $action === 'add' ? 'Agregar' : 'Actualizar'; ?> Entrada</button>
+        <a href="index.php?action=list" class="btn btn-secondary">Volver al Listado</a>
+    </form>
 
     <script>
-        // Script para manejar la visibilidad de los campos específicos por tipo de tarea
-        document.querySelector('select[name="tipo"]').addEventListener('change', function() {
-            const tipo = this.value;
-            const especifico = document.getElementById('especifico');
-            especifico.style.display = (tipo === 'desarrollo' || tipo === 'diseno' || tipo === 'testing') ? 'block' : 'none';
-        });
+    document.addEventListener('DOMContentLoaded', function() {
+        const tipoSelect = document.getElementById('tipo');
+        const camposDinamicos = document.getElementById('campos-dinamicos');
+
+        const entradaEditar = <?php echo $entradaEditar ? json_encode($entradaEditar) : 'null'; ?>;
+
+        function generarCampos() {
+            const tipo = parseInt(tipoSelect.value);
+            let campos = '';
+
+            for (let i = 1; i <= tipo; i++) {
+                const tituloKey = tipo === 1 ? 'titulo' : `titulo${i}`;
+                const descripcionKey = tipo === 1 ? 'descripcion' : `descripcion${i}`;
+
+                const tituloValue = entradaEditar ? (entradaEditar[tituloKey] || '') : '';
+                const descripcionValue = entradaEditar ? (entradaEditar[descripcionKey] || '') : '';
+
+                campos += `
+                    <div class="mb-3">
+                        <label for="${tituloKey}" class="form-label">Título ${i}</label>
+                        <input type="text" class="form-control" id="${tituloKey}" name="${tituloKey}" required value="${tituloValue.replace(/"/g, '&quot;')}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="${descripcionKey}" class="form-label">Descripción ${i}</label>
+                        <textarea class="form-control" id="${descripcionKey}" name="${descripcionKey}" rows="3" required>${descripcionValue.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
+                    </div>
+                `;
+            }
+
+            camposDinamicos.innerHTML = campos;
+        }
+
+        tipoSelect.addEventListener('change', generarCampos);
+        generarCampos(); // Generar campos iniciales
+    });
     </script>
+            <?php elseif ($action === 'view'): ?>
+                <div class="row">
+                    <?php foreach ($entradas as $entrada): ?>
+                        <?php switch ($entrada->tipo):
+                            case 1: ?>
+                                <div class="col-12 mb-4">
+                                    <div class="card">
+                                        <img src="https://picsum.photos/800/400?random=<?php echo $entrada->id; ?>" class="card-img-top" alt="Imagen aleatoria">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><?php echo $entrada->titulo; ?></h5>
+                                            <p class="card-text"><?php echo $entrada->descripcion; ?></p>
+                                            <p class="card-text"><small class="text-muted"><?php echo $entrada->fecha_creacion; ?></small></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php break;
+                            case 2: ?>
+                                <div class="col-md-6 mb-4">
+                                    <div class="card">
+                                        <img src="https://picsum.photos/400/300?random=<?php echo $entrada->id; ?>-1" class="card-img-top" alt="Imagen aleatoria">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><?php echo $entrada->titulo1; ?></h5>
+                                            <p class="card-text"><?php echo $entrada->descripcion1; ?></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div class="card">
+                                        <img src="https://picsum.photos/400/300?random=<?php echo $entrada->id; ?>-2" class="card-img-top" alt="Imagen aleatoria">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><?php echo $entrada->titulo2; ?></h5>
+                                            <p class="card-text"><?php echo $entrada->descripcion2; ?></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php break;
+                            case 3: ?>
+                                <div class="col-md-4 mb-4">
+                                    <div class="card">
+                                        <img src="https://picsum.photos/300/200?random=<?php echo $entrada->id; ?>-1" class="card-img-top" alt="Imagen aleatoria">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><?php echo $entrada->titulo1; ?></h5>
+                                            <p class="card-text"><?php echo $entrada->descripcion1; ?></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-4">
+                                    <div class="card">
+                                        <img src="https://picsum.photos/300/200?random=<?php echo $entrada->id; ?>-2" class="card-img-top" alt="Imagen aleatoria">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><?php echo $entrada->titulo2; ?></h5>
+                                            <p class="card-text"><?php echo $entrada->descripcion2; ?></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-4">
+                                    <div class="card">
+                                        <img src="https://picsum.photos/300/200?random=<?php echo $entrada->id; ?>-3" class="card-img-top" alt="Imagen aleatoria">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><?php echo $entrada->titulo3; ?></h5>
+                                            <p class="card-text"><?php echo $entrada->descripcion3; ?></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php break;
+                        endswitch; ?>
+                    <?php endforeach; ?>
+                </div>
+                <a href="index.php?action=list" class="btn btn-primary">Volver al Listado</a>
+            <?php endif; ?>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
