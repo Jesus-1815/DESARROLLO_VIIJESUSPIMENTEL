@@ -1,5 +1,5 @@
 <?php
-
+/*Nombre: Jesus Pimentel*/
 require_once 'clases.php';
 
 $gestorBlog = new GestorBlog();
@@ -28,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 if ($action === 'delete' && isset($_GET['id'])) {
     // Implementar la lógica
+
     $mensaje = "Entrada eliminada con éxito.";
     $action = "list";
 }
@@ -235,3 +236,4 @@ $entradas = $gestorBlog->obtenerEntradas();
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
