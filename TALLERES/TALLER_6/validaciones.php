@@ -1,4 +1,9 @@
 <?php
+function validarFechaNacimiento($fecha) {
+    $fecha_actual = date('Y-m-d');
+    return $fecha <= $fecha_actual && $fecha !== '';
+}
+
 function validarNombre($nombre) {
     return !empty($nombre) && strlen($nombre) <= 50;
 }

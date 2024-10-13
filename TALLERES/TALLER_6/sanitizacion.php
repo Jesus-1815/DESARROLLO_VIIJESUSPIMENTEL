@@ -1,4 +1,8 @@
 <?php
+function sanitizarFechaNacimiento($fecha) {
+    return htmlspecialchars(trim($fecha), ENT_QUOTES, 'UTF-8');
+}
+
 function sanitizarNombre($nombre) {
     return htmlspecialchars(trim($nombre), ENT_QUOTES, 'UTF-8');
 }
