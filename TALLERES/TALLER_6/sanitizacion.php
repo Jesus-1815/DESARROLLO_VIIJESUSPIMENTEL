@@ -1,6 +1,6 @@
 <?php
 function sanitizarNombre($nombre) {
-    return filter_var(trim($nombre), FILTER_SANITIZE_STRING);
+    return htmlspecialchars(trim($nombre), ENT_QUOTES, 'UTF-8');
 }
 
 function sanitizarEmail($email) {
@@ -16,12 +16,12 @@ function sanitizarSitioWeb($sitioWeb) {
 }
 
 function sanitizarGenero($genero) {
-    return filter_var(trim($genero), FILTER_SANITIZE_STRING);
+    return htmlspecialchars(trim($genero), ENT_QUOTES, 'UTF-8');
 }
 
 function sanitizarIntereses($intereses) {
     return array_map(function($interes) {
-        return filter_var(trim($interes), FILTER_SANITIZE_STRING);
+        return htmlspecialchars(trim($interes), ENT_QUOTES, 'UTF-8');
     }, $intereses);
 }
 
