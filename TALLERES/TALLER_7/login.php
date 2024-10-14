@@ -1,4 +1,6 @@
 <?php
+ini_set('memory_limit', '512M');
+
 session_start();
 include 'config_sesion.php'; // Asegúrate de que este archivo exista y esté configurado correctamente.
 
