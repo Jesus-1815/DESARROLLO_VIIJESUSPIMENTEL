@@ -1,5 +1,5 @@
 <?php
-/*Nombre: Jesus Pimentel*/
+
 require_once 'clases.php';
 
 $gestorBlog = new GestorBlog();
@@ -8,6 +8,7 @@ $gestorBlog->cargarEntradas();
 $action = $_GET['action'] ?? 'list';
 $mensaje = '';
 
+// Manejo de las acciones
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action'])) {
         switch ($_POST['action']) {
@@ -19,28 +20,84 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     break;
                 }
 
-                // Implementar la lógica
+                // Recopilar la información del formulario
+                $tipo = (int)$_POST['tipo'];
+                $titulo = $_POST['titulo'] ?? null;
+                $descripcion = $_POST['descripcion'] ?? null;
 
+                // Información adicional para más columnas
+                $titulo1 = $_POST['titulo1'] ?? null;
+                $descripcion1 = $_POST['descripcion1'] ?? null;
+                $titulo2 = $_POST['titulo2'] ?? null;
+                $descripcion2 = $_POST['descripcion2'] ?? null;
+
+                if ($_POST['action'] === 'add') {
+                    // Crear una nueva entrada
+                    if ($tipo === 1) {
+                        $nuevaEntrada = new EntradaUnaColumna($titulo, $descripcion);
+                    } elseif ($tipo === 2) {
+                        $nuevaEntrada = new EntradaDosColumnas($titulo1, $descripcion1, $titulo2, $descripcion2);
+                    } elseif ($tipo === 3) {
+                        $nuevaEntrada = new EntradaTresColumnas($titulo1, $descripcion1, $titulo2, $descripcion2, $_POST['titulo3'], $_POST['descripcion3']);
+                    }
+
+                    // Agregar la nueva entrada
+                    $gestorBlog->agregarEntrada($nuevaEntrada);
+                    $mensaje = "Entrada añadida con éxito.";
+                } elseif ($_POST['action'] === 'edit' && isset($_POST['id'])) {
+                    // Editar una entrada existente
+                    $entrada = $gestorBlog->obtenerEntrada($_POST['id']);
+                    if ($entrada) {
+                        if ($tipo === 1) {
+                            $entrada->titulo = $titulo;
+                            $entrada->descripcion = $descripcion;
+                        } elseif ($tipo === 2) {
+                            $entrada->titulo1 = $titulo1;
+                            $entrada->descripcion1 = $descripcion1;
+                            $entrada->titulo2 = $titulo2;
+                            $entrada->descripcion2 = $descripcion2;
+                        } elseif ($tipo === 3) {
+                            $entrada->titulo1 = $titulo1;
+                            $entrada->descripcion1 = $descripcion1;
+                            $entrada->titulo2 = $titulo2;
+                            $entrada->descripcion2 = $descripcion2;
+                            $entrada->titulo3 = $_POST['titulo3'];
+                            $entrada->descripcion3 = $_POST['descripcion3'];
+                        }
+
+                        $gestorBlog->editarEntrada($entrada);
+                        $mensaje = "Entrada actualizada con éxito.";
+                    } else {
+                        $mensaje = "Error: Entrada no encontrada.";
+                    }
+                }
+                $action = 'list';
                 break;
         }
     }
 }
 
 if ($action === 'delete' && isset($_GET['id'])) {
-    // Implementar la lógica
-
+    $gestorBlog->eliminarEntrada($_GET['id']);
     $mensaje = "Entrada eliminada con éxito.";
     $action = "list";
 }
 
 if (($action === 'move_up' || $action === 'move_down') && isset($_GET['id'])) {
-    // Implementar la lógica
+    $gestorBlog->moverEntrada($_GET['id'], $action === 'move_up' ? 'up' : 'down');
     $mensaje = "Entrada reordenada con éxito.";
     $action = "list";
 }
 
+// Manejo básico de errores para parámetros inválidos
+if (!in_array($action, ['list', 'add', 'edit', 'delete', 'move_up', 'move_down', 'view'])) {
+    $mensaje = "Error: Acción no reconocida.";
+    $action = 'list';
+}
+
 $entradas = $gestorBlog->obtenerEntradas();
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -80,7 +137,7 @@ $entradas = $gestorBlog->obtenerEntradas();
                     <?php foreach ($entradas as $entrada): ?>
                         <tr>
                             <td><?php echo $entrada->id; ?></td>
-                            <td><?php echo $entrada->titulo ?? $entrada->titulo1; ?></td>
+                            <td><?php echo $entrada->obtenerDetallesEspecificos(); ?></td>
                             <td><?php echo $entrada->tipo; ?> columna(s)</td>
                             <td><?php echo $entrada->fecha_creacion; ?></td>
                             <td>
@@ -94,7 +151,8 @@ $entradas = $gestorBlog->obtenerEntradas();
                 </tbody>
             </table>
             <a href="index.php?action=view" class="btn btn-primary">Ver Blog</a>
-            <?php elseif ($action === 'add' || $action === 'edit'): ?>
+        
+        <?php elseif ($action === 'add' || $action === 'edit'): ?>
     <?php
     $entradaEditar = null;
     if ($action === 'edit' && isset($_GET['id'])) {
@@ -140,100 +198,72 @@ $entradas = $gestorBlog->obtenerEntradas();
                 const descripcionKey = tipo === 1 ? 'descripcion' : `descripcion${i}`;
 
                 const tituloValue = entradaEditar ? (entradaEditar[tituloKey] || '') : '';
-                const descripcionValue = entradaEditar ? (entradaEditar[descripcionKey] || '') : '';
+                const descripcionValue = entradaEditar ? (entradaEditar[];
+                const descripcionKey] || '') : '';campos +=[];
 
-                campos += `
-                    <div class="mb-3">
-                        <label for="${tituloKey}" class="form-label">Título ${i}</label>
-                        <input type="text" class="form-control" id="${tituloKey}" name="${tituloKey}" required value="${tituloValue.replace(/"/g, '&quot;')}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="${descripcionKey}" class="form-label">Descripción ${i}</label>
-                        <textarea class="form-control" id="${descripcionKey}" name="${descripcionKey}" rows="3" required>${descripcionValue.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
-                    </div>
-                `;
-            }
-
-            camposDinamicos.innerHTML = campos;
-        }
-
-        tipoSelect.addEventListener('change', generarCampos);
-        generarCampos(); // Generar campos iniciales
-    });
-    </script>
-            <?php elseif ($action === 'view'): ?>
-                <div class="row">
-                    <?php foreach ($entradas as $entrada): ?>
-                        <?php switch ($entrada->tipo):
-                            case 1: ?>
-                                <div class="col-12 mb-4">
-                                    <div class="card">
-                                        <img src="https://picsum.photos/800/400?random=<?php echo $entrada->id; ?>" class="card-img-top" alt="Imagen aleatoria">
-                                        <div class="card-body">
-                                            <h5 class="card-title"><?php echo $entrada->titulo; ?></h5>
-                                            <p class="card-text"><?php echo $entrada->descripcion; ?></p>
-                                            <p class="card-text"><small class="text-muted"><?php echo $entrada->fecha_creacion; ?></small></p>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php break;
-                            case 2: ?>
-                                <div class="col-md-6 mb-4">
-                                    <div class="card">
-                                        <img src="https://picsum.photos/400/300?random=<?php echo $entrada->id; ?>-1" class="card-img-top" alt="Imagen aleatoria">
-                                        <div class="card-body">
-                                            <h5 class="card-title"><?php echo $entrada->titulo1; ?></h5>
-                                            <p class="card-text"><?php echo $entrada->descripcion1; ?></p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 mb-4">
-                                    <div class="card">
-                                        <img src="https://picsum.photos/400/300?random=<?php echo $entrada->id; ?>-2" class="card-img-top" alt="Imagen aleatoria">
-                                        <div class="card-body">
-                                            <h5 class="card-title"><?php echo $entrada->titulo2; ?></h5>
-                                            <p class="card-text"><?php echo $entrada->descripcion2; ?></p>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php break;
-                            case 3: ?>
-                                <div class="col-md-4 mb-4">
-                                    <div class="card">
-                                        <img src="https://picsum.photos/300/200?random=<?php echo $entrada->id; ?>-1" class="card-img-top" alt="Imagen aleatoria">
-                                        <div class="card-body">
-                                            <h5 class="card-title"><?php echo $entrada->titulo1; ?></h5>
-                                            <p class="card-text"><?php echo $entrada->descripcion1; ?></p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 mb-4">
-                                    <div class="card">
-                                        <img src="https://picsum.photos/300/200?random=<?php echo $entrada->id; ?>-2" class="card-img-top" alt="Imagen aleatoria">
-                                        <div class="card-body">
-                                            <h5 class="card-title"><?php echo $entrada->titulo2; ?></h5>
-                                            <p class="card-text"><?php echo $entrada->descripcion2; ?></p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 mb-4">
-                                    <div class="card">
-                                        <img src="https://picsum.photos/300/200?random=<?php echo $entrada->id; ?>-3" class="card-img-top" alt="Imagen aleatoria">
-                                        <div class="card-body">
-                                            <h5 class="card-title"><?php echo $entrada->titulo3; ?></h5>
-                                            <p class="card-text"><?php echo $entrada->descripcion3; ?></p>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php break;
-                        endswitch; ?>
-                    <?php endforeach; ?>
-                </div>
-                <a href="index.php?action=list" class="btn btn-primary">Volver al Listado</a>
-            <?php endif; ?>
+    <div class="mb-3">
+        <label for="titulo${i}" class="form-label">Título ${i}</label>
+        <input type="text" class="form-control" id="titulo${i}" name="titulo${i}" value="${tituloValue}" required>
     </div>
+    <div class="mb-3">
+        <label for="descripcion${i}" class="form-label">Descripción ${i}</label>
+        <textarea class="form-control" id="descripcion${i}" name="descripcion${i}" required>${descripcionValue}</textarea>
+    </div>
+`;
+}
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+camposDinamicos.innerHTML = campos;
+}
+
+// Generar los campos iniciales cuando se carga la página
+generarCampos();
+
+tipoSelect.addEventListener('change', generarCampos);
+});
+</script>
+
+<?php elseif ($action === 'view'): ?>
+<h2>Blog</h2>
+<div class="blog-entries">
+<?php foreach ($entradas as $entrada): ?>
+<div class="blog-entry">
+    <h3><?php echo $entrada->obtenerDetallesEspecificos(); ?></h3>
+    <p>Publicado el: <?php echo $entrada->fecha_creacion; ?></p>
+    
+    <?php if ($entrada instanceof EntradaUnaColumna): ?>
+        <p><?php echo $entrada->descripcion; ?></p>
+    <?php elseif ($entrada instanceof EntradaDosColumnas): ?>
+        <div class="row">
+            <div class="col">
+                <h4><?php echo $entrada->titulo1; ?></h4>
+                <p><?php echo $entrada->descripcion1; ?></p>
+            </div>
+            <div class="col">
+                <h4><?php echo $entrada->titulo2; ?></h4>
+                <p><?php echo $entrada->descripcion2; ?></p>
+            </div>
+        </div>
+    <?php elseif ($entrada instanceof EntradaTresColumnas): ?>
+        <div class="row">
+            <div class="col">
+                <h4><?php echo $entrada->titulo1; ?></h4>
+                <p><?php echo $entrada->descripcion1; ?></p>
+            </div>
+            <div class="col">
+                <h4><?php echo $entrada->titulo2; ?></h4>
+                <p><?php echo $entrada->descripcion2; ?></p>
+            </div>
+            <div class="col">
+                <h4><?php echo $entrada->titulo3; ?></h4>
+                <p><?php echo $entrada->descripcion3; ?></p>
+            </div>
+        </div>
+    <?php endif; ?>
+</div>
+<hr>
+<?php endforeach; ?>
+</div>
+<?php endif; ?>
+</div>
 </body>
 </html>
-
