@@ -1,14 +1,20 @@
 <?php
-$servername = "localhost";  // Cambia esto según tu configuración
-$username = "root";         // Cambia esto según tu configuración
-$password = "";             // Cambia esto según tu configuración
-$database = "taller9_db";   // Nombre de la base de datos que creaste
+$host = 'localhost'; 
+$db = 'taller9_db'; 
+$user = 'root'; 
+$pass = ''; 
+$charset = 'utf8mb4';
+
+$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+$options = [
+    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    PDO::ATTR_EMULATE_PREPARES   => false,
+];
 
 try {
-    $pdo = new PDO("mysql:host=$servername;dbname=$database", $username, $password);
-    // Configurar modo de error de PDO a excepción
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    die("Error de conexión: " . $e->getMessage());
+    $conn = new PDO($dsn, $user, $pass, $options);
+} catch (\PDOException $e) {
+    throw new \PDOException($e->getMessage(), (int)$e->getCode());
 }
 ?>
