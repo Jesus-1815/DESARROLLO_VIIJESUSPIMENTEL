@@ -211,4 +211,3 @@ tendenciasVentas($conn);
 $conn = null; // Cierra la conexión PDO
 ?>
 
-
