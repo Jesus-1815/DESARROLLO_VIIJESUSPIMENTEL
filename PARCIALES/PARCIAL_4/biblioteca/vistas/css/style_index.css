@@ -1,0 +1,80 @@
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+.header {
+    text-align: center;
+    margin: 20px 0;
+}
+
+nav {
+    background-color: #007BFF;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 15px; /* Espacio entre los botones */
+    margin: 0;
+    padding: 0;
+}
+
+nav ul li {
+    display: inline;
+}
+
+.menu a, nav a {
+    display: inline-block;
+    padding: 6px 12px; /* Tamaño más pequeño de los botones */
+    background-color: #007BFF;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 14px; /* Tamaño de texto más pequeño */
+    margin: 0 5px; /* Espacio entre los botones */
+    transition: background-color 0.3s ease; /* Transición suave al pasar el ratón */
+}
+
+.menu a:hover, nav a:hover {
+    background-color: #0056b3;
+}
+
+.main {
+    padding: 20px;
+    text-align: center;
+}
+
+/* Estilo del título principal */
+h1 {
+    color: #007BFF;
+    margin-bottom: 20px;
+}
+
+/* Estilo del pie de página */
+footer {
+    background-color: #f1f1f1;
+    text-align: center;
+    padding: 10px 0;
+    margin-top: 20px;
+    font-size: 14px;
+    color: #666;
+}
+
+/* Enlaces en el pie de página */
+footer a {
+    color: #007BFF;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
