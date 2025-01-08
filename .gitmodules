@@ -4,3 +4,9 @@
 [submodule "PARCIAL_4"]
 	path = PARCIAL_4
 	url = https://github.com/Jesus-1815/PARCIAL_4
+[submodule "DESARROLLO_VII_PROYECTO"]
+	path = DESARROLLO_VII_PROYECTO
+	url = https://github.com/Jesus-1815/DESARROLLO_VII_PROYECTO
+[submodule "proyectoDeJava"]
+	path = proyectoDeJava
+	url = https://github.com/estefanyZ13/proyectoDeJava.git
